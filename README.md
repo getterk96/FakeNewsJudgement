@@ -2,8 +2,7 @@
 ## How to run the code
 1. First, please install `Anaconda3` yourself. Then create the virtual environment by typing in:
 ```
-conda create -n fnj
-conda install --yes --file environment.yaml
+conda env create -f environment.yaml
 conda activate fnj
 ```
 2. Then run the whole experiment by simply run the script `run.sh`:
