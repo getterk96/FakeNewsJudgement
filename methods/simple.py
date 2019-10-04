@@ -85,18 +85,17 @@ class Simple(nn.Module):
 
             (score, _) = self.forward_loss(x, y)
 
-            acc = 100 - np.average(np.abs((score > 0.5).int().squeeze().cpu() - y.type(torch.IntTensor))) * 100
+            acc.append(100 - np.average(np.abs((score > 0.5).int().squeeze().cpu() - y.type(torch.IntTensor))) * 100)
 
         acc = np.mean(acc)
         writer.add_scalar('acc/val_acc', acc.item(), epoch)
         return acc
 
     def test_loop(self, novel_loader):
-        acc = []
+        pred = []
 
         for i, (x, y) in enumerate(novel_loader):
             (score, _) = self.forward_loss(x, y)
-            acc.append(100 - np.average(np.abs((score > 0.5).int().squeeze().cpu() - y.type(torch.IntTensor))) * 100)
+            pred += (score > 0.5).int().squeeze().cpu().tolist()
 
-        acc = np.mean(acc)
-        return acc
+        return pred

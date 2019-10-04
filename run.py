@@ -5,7 +5,7 @@ from torch.autograd import Variable
 import torch.optim
 from torch.optim.lr_scheduler import *
 from tensorboardX import SummaryWriter
-import os
+import os, json
 
 import configs
 import utils.feature_loader as feat_loader
@@ -37,7 +37,7 @@ class Experiment():
         novel_file = configs.data_dir['test'] + 'novel.json'
 
         novel_datamgr = SimpleDataManager(image_size, batch_size=64)
-        novel_loader = novel_datamgr.get_data_loader(novel_file, aug=False)
+        novel_loader = novel_datamgr.get_data_loader(novel_file, aug=False, shuffle=False)
 
         optimizer = params.optimizer
 
@@ -72,13 +72,10 @@ class Experiment():
                 model.load_state_dict(tmp['state'])
 
         self.params = params
-        self.real_val_file = real_val_file
-        self.real_base_file = real_base_file
-        self.rumor_val_file = rumor_val_file
-        self.rumor_base_file = rumor_base_file
         self.image_size = image_size
         self.optimizer = optimizer
         self.outfile_template = outfile_template
+        self.novel_file = novel_file
         self.novel_loader = novel_loader
         self.real_base_loader = real_base_loader
         self.real_val_loader = real_val_loader
@@ -104,7 +101,8 @@ class Experiment():
         stop_epoch = self.params.stop_epoch
         for epoch in range(start_epoch, stop_epoch):
             self.model.train()
-            self.model.train_loop(epoch, self.real_base_loader, self.rumor_base_loader, train_optimizer, train_scheduler, self.writer)
+            self.model.train_loop(epoch, self.real_base_loader, self.rumor_base_loader, train_optimizer,
+                                  train_scheduler, self.writer)
 
             self.model.eval()
             acc = self.test('val', epoch)
@@ -122,12 +120,20 @@ class Experiment():
     def test(self, split='novel', epoch=0):
         self.outfile = self.outfile_template % split
         if split == 'novel':
-            acc = self.model.test_loop(self.novel_loader)
+            pred = self.model.test_loop(self.novel_loader)
+            self.produce_test_result(pred)
         else:
             acc = self.model.val_loop(epoch, self.real_val_loader, self.rumor_val_loader, self.writer)
+            print('Test Acc = %4.2f%%' % acc)
+            return acc
 
-        print('Test Acc = %4.2f%%' % acc)
-        return acc
+    def produce_test_result(self, pred):
+        with open(self.novel_file, 'r') as f:
+            j = json.load(f)
+        with open('submit.csv', 'w') as f:
+            f.write('id,label\n')
+            for i, image in enumerate(j['image_names']):
+                f.write('%s,%s\n' % (image.split('/')[-1].split('.')[0], 1 - pred[i]))
 
     def run(self):
         if self.params.mode == 'train':

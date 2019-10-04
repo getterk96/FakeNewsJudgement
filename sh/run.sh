@@ -2,9 +2,9 @@ mkdir outputs
 mkdir records
 
 method=simple
-gpu=4
+gpu=5
 
-mode=train
+mode=test
 model=ResNet18
 optimizer=SGD
 
