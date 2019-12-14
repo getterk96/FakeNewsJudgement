@@ -24,11 +24,6 @@ def parse_args():
     parser.add_argument('--test_lr', default=0.01, type=float, help='testing learning rate')
     parser.add_argument('--train_aug', action='store_true',
                         help='perform data augmentation or not during training')
-    parser.add_argument('--shake', action='store_true', help='perform shake-shake regularization or not')
-    parser.add_argument('--shake_forward', action='store_true', help='shake-shake on forward process')
-    parser.add_argument('--shake_backward', action='store_true', help='shake-shake on backward process')
-    parser.add_argument('--shake_picture', action='store_true', help='shake-shake on every image in a batch')
-
     parser.add_argument('--save_freq', default=50, type=int, help='save frequency')
     parser.add_argument('--start_epoch', default=0, type=int, help='starting epoch')
     parser.add_argument('--stop_epoch', default=-1, type=int,

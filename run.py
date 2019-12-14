@@ -1,14 +1,12 @@
-import h5py
 import numpy as np
 import torch
-from torch.autograd import Variable
 import torch.optim
 from torch.optim.lr_scheduler import *
+from torch.autograd import Variable
 from tensorboardX import SummaryWriter
 import os, json
 
 import configs
-import utils.feature_loader as feat_loader
 from utils.data_utils import SimpleDataManager
 from methods.simple import Simple
 from utils.io_utils import model_dict, parse_args, get_resume_file, get_best_file
@@ -41,10 +39,7 @@ class Experiment():
 
         optimizer = params.optimizer
 
-        shake_config = {'shake_forward': params.shake_forward, 'shake_backward': params.shake_backward,
-                        'shake_picture': params.shake_picture}
-
-        model = Simple(model_dict[params.model], 10, params.shake, shake_config)
+        model = Simple(model_dict[params.model], 10)
         model = model.cuda()
 
         key = params.tag
@@ -70,6 +65,7 @@ class Experiment():
                 tmp = torch.load(resume_file)
                 params.start_epoch = tmp['epoch'] + 1
                 model.load_state_dict(tmp['state'])
+                print('Model Loaded!')
 
         self.params = params
         self.image_size = image_size
@@ -140,6 +136,26 @@ class Experiment():
             self.train()
         elif self.params.mode == 'test':
             self.test()
+        elif self.params.mode == 'save_feat':
+            self.save_feat()
+
+    def save_feat(self):
+        feats = np.array([[0] * 513])
+        for i, (x, y) in enumerate(self.real_base_loader):
+            feat = self.model.feature(Variable(x.cuda()))
+            feat = feat.detach().cpu().numpy()
+            feat = np.concatenate([feat, y[:, np.newaxis]], 1)
+            feats = np.concatenate([feats, feat], 0)
+            if i % 100 == 0:
+                print(f'{i * 32} real samples done!')
+        for i, (x, y) in enumerate(self.rumor_base_loader):
+            feat = self.model.feature(Variable(x.cuda()))
+            feat = feat.detach().cpu().numpy()
+            feat = np.concatenate([feat, y[:, np.newaxis]], 1)
+            feats = np.concatenate([feats, feat], 0)
+            if i % 100 == 0:
+                print(f'{i * 32} rumor samples done!')
+        np.savetxt("features.csv", feats[1:], delimiter=',')
 
 
 if __name__ == '__main__':

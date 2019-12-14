@@ -127,3 +127,5 @@ dmypy.json
 .pyre/
 
 !/parts/
+!/features.csv
+!/submit.csv

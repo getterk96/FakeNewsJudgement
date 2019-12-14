@@ -4,18 +4,14 @@ mkdir records
 method=simple
 gpu=5
 
-mode=test
+mode=save_feat
 model=ResNet18
 optimizer=SGD
 
 # stage-1
 model_id=1
 train_lr=0.01
-resume=0
-shake=0
-shake_forward=1
-shake_backward=1
-shake_picture=1
+resume=1
 aug=0
 
 save_freq=50
@@ -24,12 +20,6 @@ stop_epoch=200
 
 vis_log=/home/gaojinghan/FakeNewsJudgement/vis_log
 checkpoint_dir=${method}_${model}_${optimizer}
-if [ ${shake} == 1 ]; then
-  checkpoint_dir="${checkpoint_dir}_shake"
-  if [ ${shake_forward} == 1 ]; then checkpoint_dir="${checkpoint_dir}_f"; fi
-  if [ ${shake_backward} == 1 ]; then checkpoint_dir="${checkpoint_dir}_b"; fi
-  if [ ${shake_picture} == 1 ]; then checkpoint_dir="${checkpoint_dir}_p"; fi
-fi
 if [ ${aug} == 1 ]; then
   checkpoint_dir="${checkpoint_dir}_aug"
 fi
@@ -57,11 +47,7 @@ cmd="
     "
 
 if [ ${resume} == 1 ]; then cmd="${cmd} --resume"; fi
-if [ ${shake} == 1 ]; then cmd="${cmd} --shake"; fi
 if [ ${aug} == 1 ]; then cmd="${cmd} --train_aug"; fi
-if [ ${shake_forward} == 1 ]; then cmd="${cmd} --shake_forward"; fi
-if [ ${shake_backward} == 1 ]; then cmd="${cmd} --shake_backward"; fi
-if [ ${shake_picture} == 1 ]; then cmd="${cmd} --shake_picture"; fi
 
 nohup $cmd >> outputs/nohup_${tag}.output &
 train_pid=$!

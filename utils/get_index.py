@@ -34,7 +34,7 @@ rumor_data_dir = ['/data/gaojinghan/FakeNews/rumor_pic']
 test_data_dir = ['/data/gaojinghan/FakeNews/stage1_test']
 
 
-with open('all.json', 'w') as f:
+with open('../filelists/real/all.json', 'w') as f:
     j = {'image_names': [], 'image_labels': []}
 
     for dd in true_data_dir:
@@ -46,7 +46,7 @@ with open('all.json', 'w') as f:
 
     json.dump(j, f)
 
-with open('all.json', 'w') as f:
+with open('../filelists/rumor/all.json', 'w') as f:
     j = {'image_names': [], 'image_labels': []}
 
     for dd in rumor_data_dir:
@@ -58,7 +58,7 @@ with open('all.json', 'w') as f:
 
     json.dump(j, f)
 
-with open('novel.json', 'w') as f:
+with open('../filelists/test/novel.json', 'w') as f:
     j = {'image_names': [], 'image_labels': []}
 
     for dd in test_data_dir:

@@ -6,12 +6,9 @@ from torch.autograd import Variable
 
 
 class Simple(nn.Module):
-    def __init__(self, backbone, hidden_units, shake, shake_config):
+    def __init__(self, backbone, hidden_units):
         super(Simple, self).__init__()
-        if shake:
-            self.feature = backbone(shake_config=shake_config)
-        else:
-            self.feature = backbone()
+        self.feature = backbone()
         self.hidden_units = hidden_units
         self.hidden_linear_1 = nn.Linear(self.feature.final_feat_dim, self.hidden_units)
         self.hidden_linear_2 = nn.Linear(self.hidden_units, self.hidden_units)
